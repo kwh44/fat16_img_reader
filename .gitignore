@@ -1,0 +1,5 @@
+.idea
+cmake-build-debug
+build
+hd0_just_FAT16_without_MBR.img
+hd0_with_mbr.img
