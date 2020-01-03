@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <vector>
 
 int convert(unsigned char ms_part, unsigned char ls_part) { // ms - more significant, ls - less significant
     int res = 0;
@@ -95,6 +96,59 @@ private:
         return name;
     }
 
+    std::string get_time(int m, int l) {
+        std::string time = "";
+        int sec_min_hours = convert(m, l);
+        int seconds =         sec_min_hours & 0b0000000000011111;
+        int minutes = 5  >> ( sec_min_hours & 0b0000011111100000);
+        int hours   = 11 >> ( sec_min_hours & 0b1111100000000000);
+        time += std::to_string(hours) + ":";
+        time += std::to_string(minutes) + ":";
+        time += std::to_string(seconds);
+        return time;
+    }
+
+    std::string creation_time() {
+        return get_time(15, 14);
+    }
+
+    std::string modification_time() {
+        return get_time(23, 22);
+    }
+
+    std::string get_date(int m, int l) {
+        std::string date = "";
+        int day_month_year = convert(m, l);
+        int day   =       day_month_year & 0b0000000000011111;
+        int month = 5 >> (day_month_year & 0b0000000111100000);
+        int year  = 9 >> (day_month_year & 0b1111111000000000);
+        date += std::to_string(day) + "/";
+        date += std::to_string(month) + "/";
+        date += std::to_string(1980 + year);
+        return date;
+    }
+
+    std::string creation_date() {
+        return get_date(17, 16);
+    }
+
+    std::string modification_date() {
+        return get_date(25, 24);
+    }
+
+    std::string file_attributes() {
+        std::string response = "";
+        int attributes = entry_data[11];
+        if (attributes & 0b00000000) response += "R";
+        if (attributes & 0b00000010) response += "H";
+        if (attributes & 0b00000100) response += "S";
+        if (attributes & 0b00001000) response += "V";
+        if (attributes & 0b00001111) response += "L";
+        if (attributes & 0b00010000) response += "D";
+        if (attributes & 0b00100000) response += "A";
+        return response;
+    }
+
 public:
     explicit Entry(char *data) {
         entry_data = data;
@@ -109,6 +163,11 @@ public:
         std::cout << "File name: " << file_name() << std::endl;
         std::cout << "First cluster number: " << convert(entry_data[27], entry_data[26]) << std::endl;
         std::cout << "File size: " << file_size() << std::endl;
+        std::cout << "File attributes " << file_attributes() << std::endl;
+        std::cout << "File creation date " << creation_date() << std::endl;
+        std::cout << "File creation time " << creation_time() << std::endl;
+        std::cout << "File modification date " << modification_date() << std::endl;
+        std::cout << "File modification time " << modification_time() << std::endl;
         std::cout << std::endl;
     }
 };
